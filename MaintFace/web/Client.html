@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" style="height: 100%; padding: 0; margin: 0;">
+<head>
+	<meta charset="utf-8" />
+	<title></title>
+	<style>
+		.TabHeader {
+			float: left;
+			z-index: 9;
+			position: relative;
+			padding-left: 8px;
+			padding-right: 8px;
+			padding-top: 2px;
+			padding-bottom: 3px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body style="touch-action:none; width:100%; height: 100%; padding: 0; margin: 0; background-color:#333333; color:#F1F1F1">
+
+	<div id="page-wrapper" style="overflow:hidden; z-index:0">
+
+		<div id="side-div" data-CLFill="true" data-CLRight=".2" style="position:fixed;" ondragover="event.preventDefault();" ondrop="HandleTabHeaderDrop(this, event);">
+
+			<div class="TabHeaderContainer" style="position:fixed; z-index:1;">
+				<div id="statsContentHeader" data-tabcontentid="statsContent" class="TabHeader" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', this.id);" onclick="BringTabToFront(this.id);">Stats</div>
+			</div>
+
+			<div class="TabContentContainer" style="overflow-y:auto;">
+				<div id="statsContent" data-CLFill="true" style="position:fixed;overflow-y:auto; background-color:#222222;">
+
+					<br style="line-height: 25px;" />
+					<a id="Maintface" href="http://www.maintface.com/" style="text-decoration:none; margin-bottom:0px; font-size:24px; color:#66A3A3;">MaintFace</a>
+					<div id="appNameContainer" style="font-size:20px; color:steelblue; cursor:pointer"><span id="appName"></span><span id="ddArrow" style="font-size:10pt;"> ▼</span></div>
+					<div style="font-size:16px; color:red" id="status">Connecting...</div>
+					<br />
+
+					<!--This has to go first or else dumb stuff will happen-->
+					<input type="submit" value="Submit" hidden>
+
+					<span id="perfStats"></span>
+					<br />
+					<span id="manualStats"></span>
+					<br />
+					<span id="edgeStats"></span>
+					<span id="custombuttons"></span>
+				</div>
+			</div>
+
+		</div>
+
+		<div id="main-div" data-CLFill="true" data-CLLeft=".2" data-CLBottom=".7" style="position:fixed;" ondragover="event.preventDefault();" ondrop="HandleTabHeaderDrop(this, event);">
+
+			<div class="TabHeaderContainer" data-CLLeft="0" style="position:fixed; z-index:1;">
+				<div id="flowCanvasHeader" data-tabcontentid="flowCanvasContent" class="TabHeader" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', this.id);" onclick="BringTabToFront(this.id);">Flow</div>
+				<div id="graphCanvasHeader" data-tabcontentid="graphCanvasContent" class="TabHeader" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', this.id);" onclick="BringTabToFront(this.id);">Graph</div>
+			</div>
+
+			<div class="TabContentContainer" style="overflow-y:auto;">
+				<div id="flowCanvasContent" data-CLFill="true" style="position:fixed; overflow:hidden; background-color:#000000;">
+					<canvas id="flowCanvas" style="background-color:#000000; z-index:10"></canvas>
+				</div>
+				<div id="graphCanvasContent" data-CLFill="true" style="position:fixed; overflow:hidden; background-color:#000000;">
+					<canvas id="graphCanvas" style="background-color:#000000; z-index:10"></canvas>
+				</div>
+			</div>
+
+		</div>
+
+		<div id="bottom-div" data-CLFill="true" data-CLLeft=".2" data-CLTop=".7" style="position:fixed" ondragover="event.preventDefault();" ondrop="HandleTabHeaderDrop(this, event);">
+
+			<div class="TabHeaderContainer" style="position:fixed; z-index:1;">
+				<div id="consoleContentHeader" data-tabcontentid="consoleContent" class="TabHeader" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', this.id);" onclick="BringTabToFront(this.id);">Console</div>
+			</div>
+
+			<div class="TabContentContainer" style="overflow-y:auto;">
+				<div id="consoleContent" style="background-color:#111111;">
+					<div id="consolePadder"><br style="line-height: 25px;" /></div>
+					<div id="out_prompt" data-CLFill="true" data-CLSubSibHeight="consolePadder,in_prompt" style="text-wrap:normal; overflow-y:scroll; background-color:#111111; color:#F1F1F1"></div>
+					<input type="text" id="in_prompt" placeholder=">Send Command" data-CLFillWidth="true" autofocus style="border:0px; background-color:#222222; color:#F1F1F1" />
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+	<!--SCRIPT-->
+
+</body>
+</html>
