@@ -9,20 +9,6 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 
-//TODO:
-
-//TODO later:
-// minimize send message size each update.
-//  variable names, send ascii instead, table lookup with comma-delim tokens.
-// add option for ajax
-// escape names/values for html.
-// visual
-//  also, VS debugger window, extension?
-//  can change the symbols that traces use.
-//  can egress to central server for aggregattion.
-//   scalable?  possible to reaggragate from central servers to central server...
-//   licensing: could license based on how many connections allowed to aggregator.
-
 namespace BW.Diagnostics
 {
 	[Flags]
