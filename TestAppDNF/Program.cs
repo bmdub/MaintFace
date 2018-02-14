@@ -19,8 +19,6 @@ namespace TestApp
             // Wait 3 Seconds for a browser connection. If none, then open a browser window to this instance.
             MaintFace.OpenBrowserAfter(TimeSpan.FromSeconds(3));
 
-
-
             MaintFace.Stats["My Stat"].Update("good");
 
             int myValue = 7;
@@ -42,14 +40,6 @@ namespace TestApp
 
             for (; ; )
             {
-                var proc = Process.GetCurrentProcess();
-                var mem = proc.WorkingSet64;
-                var cpu = proc.TotalProcessorTime;
-                MaintFace.Stats["mem"].Update(mem);
-                MaintFace.Stats["cpu"].Update(cpu.Ticks);
-
-
-
                 MaintFace.TracePointByRef("Start", ref someValue);
 
                 if (rand.Next(0, 2) == 1)
