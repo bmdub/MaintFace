@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace BW.Diagnostics
 {
 	[EditorBrowsable(EditorBrowsableState.Never)]
-	public class ManualStatCounters
+	public class ManualStatCounters : IEnumerable<Stat>
 	{
 		private ConcurrentDictionary<string, ManualStat> _stats = new ConcurrentDictionary<string, ManualStat>();
 
@@ -65,6 +66,16 @@ namespace BW.Diagnostics
 		{
 			foreach(var value in _stats.Values)
 				value.Reset();
+		}
+
+		public IEnumerator<Stat> GetEnumerator()
+		{
+			return GetStats().GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetStats().GetEnumerator();
 		}
 	}
 }

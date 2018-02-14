@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Reflection;
@@ -9,13 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 // See for enabling ssl: http://stackoverflow.com/questions/11403333/httplistener-with-https-support
 
 namespace BW.Diagnostics
 {
-	public static partial class MaintFace
+    public static partial class MaintFace
 	{
 		private const int _messageRate = 1000;
 		private const int _openPageAfterDuration = 5000;
@@ -87,15 +86,15 @@ namespace BW.Diagnostics
 			// A resource is prefixed by the default namespace.
 			//var temp = typeof(MaintFace).Assembly.GetManifestResourceNames();
 			var assembly = Assembly.GetExecutingAssembly();
-			_clientJS = GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.Common.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.CustomLayout.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.CustomPopup.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.DirectedGraph.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.Graph.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.Panes.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.AsyncWebSocket.js") + "\r\n";
-			_clientJS += GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.Client.js") + "\r\n";
-			_clientHTML = GetTextResource(assembly, typeof(MaintFace).Namespace + ".web.Client.html") + "\r\n";
+			_clientJS = GetTextResource(assembly, "MaintFace.web.Common.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.CustomLayout.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.CustomPopup.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.DirectedGraph.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.Graph.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.Panes.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.AsyncWebSocket.js") + "\r\n";
+			_clientJS += GetTextResource(assembly, "MaintFace.web.Client.js") + "\r\n";
+			_clientHTML = GetTextResource(assembly, "MaintFace.web.Client.html") + "\r\n";
 			_clientHTML = _clientHTML.Replace("<!--SCRIPT-->", "<script>" + _clientJS + "</script>") + "\r\n";
 			_clientHtmlRaw = System.Text.Encoding.UTF8.GetBytes(_clientHTML);
 
@@ -128,9 +127,6 @@ namespace BW.Diagnostics
 			Task.Run(() => SendLoop());
 
 			Task.Run(() => RunServer(listener));
-
-			// Check for other instances periodically
-			Task.Run(() => InstanceListLoop());
 
 			Trace.WriteLine(nameof(MaintFace) + "(v" + typeof(MaintFace).Assembly.GetName().Version + ") started: " + Url);
 		}
@@ -196,7 +192,8 @@ namespace BW.Diagnostics
 
 		private static string GetTextResource(Assembly executingAssembly, string resourceName)
 		{
-			Stream stream = executingAssembly.GetManifestResourceStream(resourceName);
+            //var asdf = executingAssembly.GetManifestResourceNames();
+            Stream stream = executingAssembly.GetManifestResourceStream(resourceName);
 
 			using (StreamReader reader = new StreamReader(stream))
 			{
@@ -249,22 +246,12 @@ namespace BW.Diagnostics
 					{
 						ServerMessage message = new ServerMessage();
 						message.Name = Name;
-						message.PerfStats = PerfStats.BuildStats();
 						message.ManualStats = Stats.GetStats();
 						foreach (var button in Buttons.GetButtons())
 							message.CustomButtons.Add(button);
 						message.ConsoleMessages = _consoleMessageQueue.GetMessagesSince(lastSendTime);
-						if (_instances != null)
-							foreach (var instance in _instances)
-								message.Instances.Add(new InstanceShort()
-								{
-									Name = instance.Name,
-									Url = instance.Url,
-									IsThis = instance.IsThis,
-								});
-
-						var serializer = new JavaScriptSerializer();
-						var serializedResult = serializer.Serialize(message);
+                        
+						var serializedResult = JsonConvert.SerializeObject(message);
 						var buffer = Encoding.UTF8.GetBytes(serializedResult);
 						var segment = new ArraySegment<byte>(buffer);
 
@@ -288,8 +275,8 @@ namespace BW.Diagnostics
 
 						lastSendTime = DateTime.UtcNow;
 
-						serializedResult = serializer.Serialize(message);
-						buffer = Encoding.UTF8.GetBytes(serializedResult);
+						serializedResult = JsonConvert.SerializeObject(message);
+                        buffer = Encoding.UTF8.GetBytes(serializedResult);
 						var segmentWithTraffic = new ArraySegment<byte>(buffer);
 
 						foreach (var kvp in _sockets)
@@ -299,7 +286,6 @@ namespace BW.Diagnostics
 					}
 
 					// Flush traffic / reset stats
-					PerfStats.ResetStats();
 					Stats.ResetStats();
 					foreach (var link in _links)
 					{
@@ -371,11 +357,9 @@ namespace BW.Diagnostics
 							}
 
 							var messageSerialized = System.Text.Encoding.Default.GetString(ms.ToArray());
-
-							var serializer = new JavaScriptSerializer();
-
-							var message = (ClientMessage)serializer.Deserialize(messageSerialized, typeof(ClientMessage));
-							if (message == null)
+                                                        
+                            var message = JsonConvert.DeserializeObject<ClientMessage>(messageSerialized);
+                            if (message == null)
 								continue;
 
 							if (!string.IsNullOrEmpty(message.CustomButton))
@@ -449,7 +433,7 @@ namespace BW.Diagnostics
 									ServerVarDumpMessage response = new ServerVarDumpMessage();
 									response.MessageId = message.MessageId;
 									response.VarDump = dump;
-									var serializedResult = serializer.Serialize(response);
+                                    var serializedResult = JsonConvert.SerializeObject(response);
 									var buffer = Encoding.UTF8.GetBytes(serializedResult);
 									var segment = new ArraySegment<byte>(buffer);
 									if (webSocketInfo.Socket.State != WebSocketState.Open)
@@ -508,8 +492,8 @@ namespace BW.Diagnostics
 									ServerSourceMessage response = new ServerSourceMessage();
 									response.MessageId = message.MessageId;
 									response.Source = traceNode.ScriptSource;
-									var serializedResult = serializer.Serialize(response);
-									var buffer = Encoding.UTF8.GetBytes(serializedResult);
+									var serializedResult = JsonConvert.SerializeObject(response);
+                                    var buffer = Encoding.UTF8.GetBytes(serializedResult);
 									var segment = new ArraySegment<byte>(buffer);
 									if (webSocketInfo.Socket.State != WebSocketState.Open)
 										return;

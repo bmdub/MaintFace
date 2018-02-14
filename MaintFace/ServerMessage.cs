@@ -13,7 +13,6 @@ namespace BW.Diagnostics
 		public List<Stat> ManualStats { get; set; } = new List<Stat>();
 		public List<string> ConsoleMessages { get; set; } = new List<string>();
 		public List<string> CustomButtons { get; set; } = new List<string>();
-		public List<InstanceShort> Instances { get; set; } = new List<InstanceShort>();
 		public List<Traffic> Traffics { get; set; } = new List<Traffic>();
 	}
 
@@ -79,13 +78,6 @@ namespace BW.Diagnostics
 			Name = name;
 			DumpedVariables = new List<DumpedVariable>();
 		}
-	}
-
-	internal class InstanceShort
-	{
-		public string Name { get; set; }
-		public string Url { get; set; }
-		public bool IsThis { get; set; }
 	}
 }
 

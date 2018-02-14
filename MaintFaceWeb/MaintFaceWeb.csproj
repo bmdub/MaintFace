@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="scripts\AsyncWebSocket.ts" />
+    <None Remove="scripts\Client.ts" />
+    <None Remove="scripts\Common.ts" />
+    <None Remove="scripts\CustomLayout.ts" />
+    <None Remove="scripts\CustomPopup.ts" />
+    <None Remove="scripts\DirectedGraph.ts" />
+    <None Remove="scripts\Graph.ts" />
+    <None Remove="scripts\Panes.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="scripts\AsyncWebSocket.ts" />
+    <TypeScriptCompile Include="scripts\Client.ts" />
+    <TypeScriptCompile Include="scripts\Common.ts" />
+    <TypeScriptCompile Include="scripts\CustomLayout.ts" />
+    <TypeScriptCompile Include="scripts\CustomPopup.ts" />
+    <TypeScriptCompile Include="scripts\DirectedGraph.ts" />
+    <TypeScriptCompile Include="scripts\Graph.ts" />
+    <TypeScriptCompile Include="scripts\Panes.ts" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(SolutionDir)MaintFaceWeb\scripts\*.js&quot; &quot;$(SolutionDir)MaintFace\web\&quot;" />
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES2017</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+</Project>

@@ -1,78 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{967995C5-CB30-44D4-BB54-0627B05AB7C5}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BW.Diagnostics</RootNamespace>
-    <AssemblyName>BW.Diagnostics.MaintFace</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+    <Version>2.0.0-beta</Version>
+    <Authors>Brian Williams</Authors>
+    <Company />
+    <Product />
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/bmdub/MaintFace/</PackageProjectUrl>
+    <PackageTags>Maintenance Interface</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A simple and lightweight maintenance interface for .NET applications. You can use MaintFace to view information about and interact with your application.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <None Remove="web\Client.html" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="AsyncWebSocketMessage.cs" />
-    <Compile Include="AuthEventArgs.cs" />
-    <Compile Include="AwaitableObject.cs" />
-    <Compile Include="ClientMessage.cs" />
-    <Compile Include="CodeObjectEditor.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="CustomButtons.cs" />
-    <Compile Include="Instances.cs" />
-    <Compile Include="ManualStatCounters.cs" />
-    <Compile Include="MessageQueue.cs" />
-    <Compile Include="PerfStatCounter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Script.cs" />
-    <Compile Include="Server.cs" />
-    <Compile Include="ServerMessage.cs" />
-    <Compile Include="SharedMemoryBlock.cs" />
-    <Compile Include="Stat.cs" />
-    <Compile Include="MaintFace.cs" />
-    <Compile Include="TraceLink.cs" />
-    <Compile Include="TraceListener.cs" />
-    <Compile Include="TraceNode.cs" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="web\AsyncWebSocket.js" />
+    <EmbeddedResource Include="web\Client.html" />
     <EmbeddedResource Include="web\Client.js" />
     <EmbeddedResource Include="web\Common.js" />
     <EmbeddedResource Include="web\CustomLayout.js" />
@@ -81,67 +29,14 @@
     <EmbeddedResource Include="web\Graph.js" />
     <EmbeddedResource Include="web\Panes.js" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="web\AsyncWebSocket.js" />
+    <Folder Include="Properties\" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="web\Client.html" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.6.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="web\AsyncWebSocket.ts" />
-    <TypeScriptCompile Include="web\Client.ts" />
-    <TypeScriptCompile Include="web\Common.ts" />
-    <TypeScriptCompile Include="web\CustomLayout.ts" />
-    <TypeScriptCompile Include="web\CustomPopup.ts" />
-    <TypeScriptCompile Include="web\DirectedGraph.ts" />
-    <TypeScriptCompile Include="web\Graph.ts" />
-    <TypeScriptCompile Include="web\Panes.ts" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- This was added manually to get the typescript file to compile -->
-  <!-- take from Microsoft.TypeScript.Default.props -->
-  <!-- otherwise, add this to the pre-build (add another dash before sourcemap): tsc -sourcemap "$(SolutionDir)VisualTrace\Client.ts" -out "$(SolutionDir)VisualTrace\Client.js" -->
-  <PropertyGroup>
-    <TypeScriptTarget>ES5</TypeScriptTarget>
-    <TypeScriptCompileOnSaveEnabled>true</TypeScriptCompileOnSaveEnabled>
-    <TypeScriptNoImplicitAny>false</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>none</TypeScriptModuleKind>
-    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
-    <TypeScriptOutFile>
-    </TypeScriptOutFile>
-    <TypeScriptOutDir>
-    </TypeScriptOutDir>
-    <TypeScriptGeneratesDeclarations>false</TypeScriptGeneratesDeclarations>
-    <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptMapRoot>
-    </TypeScriptMapRoot>
-    <TypeScriptSourceRoot>
-    </TypeScriptSourceRoot>
-    <TypeScriptNoEmitOnError>true</TypeScriptNoEmitOnError>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Any CPU'">
-    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
-    <TypeScriptOutFile />
-    <TypeScriptOutDir />
-    <TypeScriptMapRoot />
-    <TypeScriptSourceRoot />
-    <TypeScriptSourceMap>False</TypeScriptSourceMap>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
-    <TypeScriptRemoveComments>True</TypeScriptRemoveComments>
-    <TypeScriptOutFile />
-    <TypeScriptOutDir />
-    <TypeScriptMapRoot />
-    <TypeScriptSourceRoot />
-    <TypeScriptTarget>ES5</TypeScriptTarget>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
 </Project>

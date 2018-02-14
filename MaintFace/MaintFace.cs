@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
+using System.Runtime.InteropServices;
 
 namespace BW.Diagnostics
 {
-	[Flags]
+    [Flags]
 	public enum MaintFaceOptions
 	{
 		None = 0,
@@ -35,8 +33,6 @@ namespace BW.Diagnostics
 		public static string Name { get; private set; }
 		/// <summary>The set of options used to instantiate the interface.</summary>
 		public static MaintFaceOptions Options { get; private set; }
-		/// <summary>The set of performance counters to be displayed on the UI.</summary>
-		public static PerfStatCounters PerfStats { get; private set; }
 		/// <summary>The set of user-updated values to be displayed on the UI.</summary>
 		public static ManualStatCounters Stats { get; private set; }
 		/// <summary>The set of buttons to be displayed on the UI, corresponding to actions.</summary>
@@ -53,24 +49,34 @@ namespace BW.Diagnostics
 
 		static MaintFace()
 		{
-			PerfStats = new PerfStatCounters();
 			Stats = new ManualStatCounters();
 			Buttons = new CustomButtonEvents();
 			_traceListener = new MaintFaceTraceListener(_consoleMessageQueue);
 			_stopwatch.Start();
 		}
 
-		/// <summary>
-		/// If no browser connections are detected after a period of time, open a browser page to this instance.
-		/// </summary>
-		/// <param name="timeout">Time to wait for browser connections.</param>
-		public static async void OpenBrowserAfter(TimeSpan timeout)
+        private static void OpenBrowser(string url)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {url.Replace("&", "^&")}") { CreateNoWindow = true });
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Process.Start("xdg-open", url);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                Process.Start("open", url);
+        }
+
+        /// <summary>
+        /// If no browser connections are detected after a period of time, open a browser page to this instance.
+        /// </summary>
+        /// <param name="timeout">Time to wait for browser connections.</param>
+        public static async void OpenBrowserAfter(TimeSpan timeout)
 		{
 			await Task.Delay(timeout);
 
-			if (ConnectedCount < 1)
-				if (Url != null)
-					System.Diagnostics.Process.Start(MaintFace.Url);
+            if (ConnectedCount < 1)
+                if (Url != null)
+                    OpenBrowser(Url);
+                    //System.Diagnostics.Process.Start(MaintFace.Url);
 		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -312,10 +318,9 @@ namespace BW.Diagnostics
 			var3 = (VAR3TYPE)objects[2];
 			var4 = (VAR4TYPE)objects[3];
 		}
-
-		// .NET 4.6
-		//private static AsyncLocal<string> _lastTracePointName = new AsyncLocal<string>();
-		//private static AsyncLocal<long> _lastTimeStamp = new AsyncLocal<long>();
+        
+		private static AsyncLocal<string> _lastTracePointName = new AsyncLocal<string>();
+		private static AsyncLocal<long> _lastTimeStamp = new AsyncLocal<long>();
 
 		private static void TracePoint(string label,
 			object[] vars,
@@ -330,16 +335,11 @@ namespace BW.Diagnostics
 			try
 			{
 				long timeStamp = _stopwatch.ElapsedTicks;
-
-				// .NET 4.6
-				//string lastTracePointName = _lastTracePointName.Value;
-				//_lastTracePointName.Value = label;
-				//long lastTimeStamp = _lastTimeStamp.Value;
-				//_lastTimeStamp.Value = timeStamp;
-				string lastTracePointName = CallContext.LogicalGetData("TD.LAST_TP") as string;
-				CallContext.LogicalSetData("TD.LAST_TP", label);
-				object lastTimeStampObj = CallContext.LogicalGetData("TD.LAST_TS");
-				CallContext.LogicalSetData("TD.LAST_TS", timeStamp);
+                
+				string lastTracePointName = _lastTracePointName.Value;
+				_lastTracePointName.Value = label;
+				long lastTimeStamp = _lastTimeStamp.Value;
+				_lastTimeStamp.Value = timeStamp;
 
 				if (lastTracePointName == null)
 				{
@@ -360,9 +360,7 @@ namespace BW.Diagnostics
 				if (isSharedNode == false)
 				{
 					label = label + " (*" + lastTracePointName + ")";
-					// .NET 4.6
-					//lastTracePointName.Value = label;
-					CallContext.LogicalSetData("TD.LAST_TP", label);
+					_lastTracePointName.Value = label;
 				}
 
 				long hash = TraceLink.Hash(lastTracePointName, label);
@@ -390,9 +388,7 @@ namespace BW.Diagnostics
 				}
 
 				// Note: StopWatch Ticks are not standard ticks.
-				// .NET 4.6
-				//double delta = (timeStamp - lastTimeStamp) / (Stopwatch.Frequency / 1000);
-				double delta = (timeStamp - (long)lastTimeStampObj) / (Stopwatch.Frequency / 1000);
+			    double delta = (timeStamp - lastTimeStamp) / (Stopwatch.Frequency / 1000);
 
 				link.Update(delta, Thread.CurrentThread.ManagedThreadId);
 

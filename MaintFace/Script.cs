@@ -1,69 +1,54 @@
-﻿using Microsoft.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace BW.Diagnostics
 {
-    internal class Script
+    internal class HookScript
     {
-        private static CSharpCodeProvider _CSCodeProvider;
-        private Assembly _assembly;
-        private Type _classType;
+        Type _classType;
 
-        static Script()
+        public HookScript(string sourceCode, string className)
         {
-            _CSCodeProvider = new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", GetCurrentDotNETVersion() } });
-        }
+            if (!RuntimeInformation.FrameworkDescription.ToUpper().Contains(".NET FRAMEWORK"))
+                throw new Exception("Scripting is currently available only for .NET Framework applications.");
 
-        private static string GetCurrentDotNETVersion()
-        {
-            return "v" + System.Environment.Version.Major.ToString() + "." + System.Environment.Version.Minor.ToString();
-        }
+            var tree = SyntaxFactory.ParseSyntaxTree(sourceCode);
+            var compilation = CSharpCompilation.Create(
+                "temp.dll",
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
+                syntaxTrees: new[] { tree },
+                references: AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic)
+                .Select(assembly => assembly.Location)
+                .Where(location => !string.IsNullOrEmpty(location))
+                .Select(loc => MetadataReference.CreateFromFile(loc))
+                .ToArray()
+                );
 
-        public Script(string sourceCode, string className)
-        {
-            List<Type> types = new List<Type>();
-
-            CompilerResults compileResults = null;
-            CompilerParameters compilerParameters = new CompilerParameters();
-
-            compilerParameters.GenerateInMemory = true;
-            compilerParameters.GenerateExecutable = false;
-            compilerParameters.TreatWarningsAsErrors = true;
-            compilerParameters.CompilerOptions = "/optimize";
-
-            //Get the assemblies used by the current process.
-            List<string> assemblyPaths = new List<string>();
-
-            //compilerParameters.ReferencedAssemblies.Add(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                compilerParameters.ReferencedAssemblies.Add(assembly.Location);
-            }
-
-            //compile
-            compileResults = _CSCodeProvider.CompileAssemblyFromSource(compilerParameters, sourceCode);
-
-            //check for compile errors
-            if (compileResults.Errors.HasErrors)
+            var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToList();
+            if (errors.Count > 0)
             {
                 string compilerErrors = "Compilation Failure: \r\n";
-                foreach (CompilerError err in compileResults.Errors)
+                foreach (var diagnostic in errors)
                 {
-                    compilerErrors += err.ErrorText + "(Line:" + err.Line.ToString() + ", Column:" + err.Column.ToString() + ")\r\n";
+                    compilerErrors += $"{diagnostic.ToString()}\r\n";
                 }
-
                 throw new Exception(compilerErrors);
             }
 
-            _assembly = compileResults.CompiledAssembly;
-            _classType = _assembly.GetType(className);
+            Assembly compiledAssembly;
+            using (var stream = new MemoryStream())
+            {
+                var compileResult = compilation.Emit(stream);
+                compiledAssembly = Assembly.Load(stream.GetBuffer());
+            }
+
+            _classType = compiledAssembly.GetType(className);
         }
 
         public void CallStaticMethod(string methodName, object[] parms)

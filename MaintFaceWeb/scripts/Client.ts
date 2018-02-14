@@ -5,8 +5,6 @@ var appName = document.getElementById('appName');
 var appNameContainer = document.getElementById('appNameContainer');
 var maintFaceElem = document.getElementById('MaintFace');
 var socketStatus = document.getElementById('status');
-var perfStats = document.getElementById('perfStats');
-var edgeStats = document.getElementById('edgeStats');
 var manualStats = document.getElementById('manualStats');
 var custombuttons = document.getElementById('custombuttons');
 var messageField = <HTMLInputElement>document.getElementById('message');
@@ -89,7 +87,7 @@ function UpdatePopup(statNames: Array<string>, statExtras: Array<string> = null)
             innerHTML += "<br/>";
 
         var name = EscapeEdgeName(stat.Name);
-        innerHTML += name + " (" + stat.SamplesFormatted + ") <br/>";
+        innerHTML += name + " (" + stat.SamplesFormatted + "/s) <br/>";
 
         if (stat.ValueOverride != null) color = "#FF00FF";
         else color = GetColorForValue(stat.ValueNumber, stat.ExpectedMaxNumber, stat.ExpectedMinNumber);
@@ -470,38 +468,10 @@ class ClientMessage extends AsyncWebSocketMessage {
 	TrafficCommand = null;
 }
 
-class Instance {
-	Name = null;
-	Url = null;
-	IsThis = null;
-}
-var instances: Array<Instance> = null;
-appNameContainer.onclick = (evt) => {
-	if (instancesPopup != null && instancesPopup.Disposed == false)
-		instancesPopup.Destroy();
-	instancesPopup = new CustomPopup("MaintFace Instances", "", "rgba(75,0,0,.9)", 999, mouseX - 10, mouseY - 10, 20, 20);
-	instancesPopup.MainDiv.style.borderRadius = "";
-	instancesPopup.MainDiv.style.borderStyle = "solid";
-	instancesPopup.MainDiv.style.borderWidth = "1px";
-	instancesPopup.MainDiv.style.borderColor = "rgba(125,0,0,1)";
-	instancesPopup.clickoutside = (evt) => instancesPopup.Destroy();
-
-	if (instances == null || instances.length == 0)
-		instancesPopup.AddListItem("(Unable to detect local instances)");
-	else
-		for (var i = 0; i < instances.length; i++) {
-			var name = instances[i].Name;
-			if (instances[i].IsThis) name += " (this)";
-			var elem = instancesPopup.AddListItem(name, "", "rgba(125,0,0,1)");
-			AddLocationEventHandler(elem, instances[i].Url);
-		}
-
-	instancesPopup.SizeToContent(true);
-}
 // This allows closure
 function AddLocationEventHandler(elem: HTMLElement, url: any) {
 	elem.onclick = (evt) => {
-		window.location = url;
+		window.location.href = url;
 	}
 }
 
@@ -530,16 +500,9 @@ webSocket.Message = (serverMessage) => {
 	if (time - lastMessageTime < 250)
 		return; // We are being flooded with messages; skip
 	lastMessageTime = time;
+    
+    appName.textContent = serverMessage.Name;
 
-	instances = serverMessage.Instances;
-	appName.textContent = serverMessage.Name;// + " ▼"; // + " (" + instances.length.toString() + ")";
-	for (var i = 0; i < serverMessage.PerfStats.length; i++) {
-		var stat = <Stat>serverMessage.PerfStats[i];
-		statCollection.AddStat(stat, time);
-		var node = GetSideBarStat(perfStats, stat.Name);
-		if (node == null) node = AddStatToSideBar(perfStats, stat.Name, false);
-		UpdateSideBarStat(node, stat);
-	}
 	for (var i = 0; i < serverMessage.ManualStats.length; i++) {
 		var stat = <Stat>serverMessage.ManualStats[i];
 		statCollection.AddStat(stat, time);

@@ -199,8 +199,8 @@ namespace BW.Diagnostics
 			set { lock (_lock) { _scriptSource = value; } }
 		}
 
-		private Script _script;
-		private Script UserScript
+		private HookScript _script;
+		private HookScript UserScript
 		{
 			get { lock (_lock) { return _script; } }
 			set { lock (_lock) { _script = value; } }
@@ -215,7 +215,7 @@ namespace BW.Diagnostics
 			if (source == null)
 				return;
 			ScriptSource = source;
-			Script script = new Script(source, "TracePointHook");
+			HookScript script = new HookScript(source, "TracePointHook");
 			UserScript = script;
 		}
 

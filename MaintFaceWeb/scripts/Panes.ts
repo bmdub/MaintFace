@@ -69,10 +69,10 @@ function CheckSizeMode() {
 			}
 
 			//bring the right tabs to the front again.
-			var elems = document.getElementsByClassName("TabHeader");
-			for (var i = 0; i < elems.length; i++)
-				if ((<HTMLElement>elems[i]).getAttribute("data-oldisfront") == "true")
-					BringTabToFront((<HTMLElement>elems[i]).id);
+			var elems2 = document.getElementsByClassName("TabHeader");
+            for (var i = 0; i < elems2.length; i++)
+                if ((<HTMLElement>elems2[i]).getAttribute("data-oldisfront") == "true")
+                    BringTabToFront((<HTMLElement>elems2[i]).id);
 
 			sideDiv.setAttribute("data-CLRight", sideDiv.getAttribute("data-oldCLRight"));
 			mainDiv.setAttribute("data-CLLeft", mainDiv.getAttribute("data-oldCLLeft"));

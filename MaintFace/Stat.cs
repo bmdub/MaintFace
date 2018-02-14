@@ -1,15 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization; // System.Web.Extensions
 
 namespace BW.Diagnostics
 {
-	[EditorBrowsable(EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
 	public class ManualStat : Stat
 	{
 		internal ManualStat(string name) : base(name) { }
@@ -239,31 +235,6 @@ namespace BW.Diagnostics
 	}
 
 	[EditorBrowsable(EditorBrowsableState.Never)]
-	public class PerfStat : Stat
-	{
-		internal PerfStat(string name) : base(name) { }
-
-		public override bool CanOverride { get { return false; } }
-
-		private PerformanceCounter _perfCounter;
-		/// <summary>A PerformanceCounter to be displayed on the UI.</summary>
-		[ScriptIgnore]
-		public PerformanceCounter PerfCounter
-		{
-			get { lock (_lock) { return _perfCounter; } }
-			set { lock (_lock) { _perfCounter = value; } }
-		}
-
-		internal void UpdateValue()
-		{
-			var counter = PerfCounter;
-			if (counter == null)
-				return;
-			ValueNumber = counter.NextValue();
-		}
-	}
-
-	[EditorBrowsable(EditorBrowsableState.Never)]
 	public abstract class Stat
 	{
 		public readonly string Name;
@@ -418,7 +389,7 @@ namespace BW.Diagnostics
 
 		private Func<double, string> _formatAction;
 		/// <summary>Specifies a custom action to format the value for display.</summary>
-		[ScriptIgnore]
+		[JsonIgnore]
 		public Func<double, string> NumberFormatAction
 		{
 			get { lock (_lock) { return _formatAction; } }
@@ -427,7 +398,7 @@ namespace BW.Diagnostics
 
 		private string _format;
 		/// <summary>Format string used to transform the value for display. Used in .ToString()</summary>
-		[ScriptIgnore]
+		[JsonIgnore]
 		public string NumberFormat
 		{
 			get { lock (_lock) { return _format; } }
@@ -436,7 +407,7 @@ namespace BW.Diagnostics
 
 		private IFormatProvider _formatProvider;
 		/// <summary>Format string used to transform the value for display. Used in .ToString()</summary>
-		[ScriptIgnore]
+		[JsonIgnore]
 		public IFormatProvider NumberFormatProvider
 		{
 			get { lock (_lock) { return _formatProvider; } }
