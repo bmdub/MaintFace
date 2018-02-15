@@ -83,7 +83,8 @@ function BringTabToFront(tabHeaderId) {
             continue;
         if (elem.nodeType != 1)
             continue; //Text
-        elem.style.backgroundColor = "#333333";
+        elem.style.color = "#333333";
+        elem.style.backgroundColor = "#888888";
         elem.setAttribute("data-isfront", "false");
     }
     for (var i = 0; i < tabContent.parentElement.childNodes.length; i++) {
@@ -96,7 +97,8 @@ function BringTabToFront(tabHeaderId) {
         elem.style.display = "none";
     }
     // Unhide the current tab    
-    tabHeader.style.backgroundColor = "#555555";
+    tabHeader.style.color = "#000000";
+    tabHeader.style.backgroundColor = "#BBBBBB";
     tabHeader.setAttribute("data-isfront", "true");
     var oldDisplay = tabContent.getAttribute("data-olddisplay");
     if (oldDisplay == null || oldDisplay == "none")

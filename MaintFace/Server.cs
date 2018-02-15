@@ -116,7 +116,7 @@ namespace BW.Diagnostics
 
             Task.Run(() => RunServer(listener));
 
-            Trace.WriteLine(nameof(MaintFace) + "(v" + typeof(MaintFace).Assembly.GetName().Version + ") started: " + Url);
+            Trace.WriteLine($"{nameof(MaintFace)} (v{typeof(MaintFace).Assembly.GetName().Version}) started at: {Url}");
         }
 
         private static async void RunServer(HttpListener listener)

@@ -514,7 +514,7 @@ webSocket.Message = (serverMessage) => {
 	custombuttons.innerHTML = "";
 	for (var i = 0; i < serverMessage.CustomButtons.length; i++) {
 		custombuttons.innerHTML = custombuttons.innerHTML.concat(
-			"<button style=\"margin:5px;\" onclick=\"SubmitForm(this.innerHTML);\">", serverMessage.CustomButtons[i], "</button>");
+			"<button style=\"margin:5px;color: white;background-color: #344455;border: none;padding: 5px 10px;cursor: pointer;\" onclick=\"SubmitForm(this.innerHTML);\">", serverMessage.CustomButtons[i], "</button>");
 	}
 	for (var i = 0; i < serverMessage.ConsoleMessages.length; i++) {
 		out_prompt.innerHTML = out_prompt.innerHTML.concat(serverMessage.ConsoleMessages[i], "<br/>");

@@ -96,7 +96,8 @@ function BringTabToFront(tabHeaderId: string) {
         var elem = <HTMLElement>tabHeader.parentElement.childNodes.item(i);
         if (elem.id == tabHeaderId) continue;
         if (elem.nodeType != 1) continue; //Text
-        elem.style.backgroundColor = "#333333";
+        elem.style.color = "#333333";
+        elem.style.backgroundColor = "#888888";
 		elem.setAttribute("data-isfront", "false");
     }
     for (var i = 0; i < tabContent.parentElement.childNodes.length; i++) {
@@ -108,7 +109,8 @@ function BringTabToFront(tabHeaderId: string) {
     }
 
     // Unhide the current tab    
-    tabHeader.style.backgroundColor = "#555555";
+    tabHeader.style.color = "#000000";
+    tabHeader.style.backgroundColor = "#BBBBBB";
 	tabHeader.setAttribute("data-isfront", "true");
 
     var oldDisplay = tabContent.getAttribute("data-olddisplay");
