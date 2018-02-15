@@ -57,6 +57,8 @@ namespace BW.Diagnostics
 
         private static void OpenBrowser(string url)
         {
+            url = url.Replace("*", "localhost");
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Process.Start(new ProcessStartInfo("cmd", $"/c start {url.Replace("&", "^&")}") { CreateNoWindow = true });
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -76,7 +78,6 @@ namespace BW.Diagnostics
             if (ConnectedCount < 1)
                 if (Url != null)
                     OpenBrowser(Url);
-                    //System.Diagnostics.Process.Start(MaintFace.Url);
 		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
