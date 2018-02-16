@@ -100,7 +100,7 @@ namespace BW.Diagnostics
                 listener.Start();
                 Url = url;
             }
-            catch (HttpListenerException ex)
+            catch (HttpListenerException)
             {
                 if (url.Contains("*"))
                 {
