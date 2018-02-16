@@ -63,8 +63,6 @@ namespace BW.Diagnostics
 
         private static void RunServer(string url, AuthenticationSchemes authSchemes)
         {
-            Url = url;
-
             AuthSchemes = authSchemes;
 
             // Listen to trace messages, and record the last N.
@@ -98,18 +96,39 @@ namespace BW.Diagnostics
             {
                 listener = new HttpListener();
                 listener.AuthenticationSchemes = authSchemes;
-                listener.Prefixes.Add(Url);
+                listener.Prefixes.Add(url);
                 listener.Start();
+                Url = url;
             }
-            catch (HttpListenerException)
+            catch (HttpListenerException ex)
             {
-                // The endpoint may be taken by another instance; randomize the path
-                Url = Url.TrimEnd('/') + Guid.NewGuid().ToString() + "/";
+                if (url.Contains("*"))
+                {
+                    // The endpoint may contain a wildcard for the domain, but we may not be 
+                    // running with the right permissions.  Fall back to localhost.
+                    var newUrl = url.Replace("*", "localhost");
 
-                listener = new HttpListener();
-                listener.AuthenticationSchemes = authSchemes;
-                listener.Prefixes.Add(Url);
-                listener.Start();
+                    listener = new HttpListener();
+                    listener.AuthenticationSchemes = authSchemes;
+                    listener.Prefixes.Add(newUrl);
+                    listener.Start();
+                    Url = newUrl;
+
+                    Trace.WriteLine($"{nameof(MaintFace)} Warning: Insufficient permission to use endpoint with wildcard \"*\". Using \"localhost\" instead.");
+                }
+                else
+                {
+                    // The endpoint may be taken by another instance; randomize the path
+                    var newUrl = url.TrimEnd('/') + Guid.NewGuid().ToString() + "/";
+
+                    listener = new HttpListener();
+                    listener.AuthenticationSchemes = authSchemes;
+                    listener.Prefixes.Add(newUrl);
+                    listener.Start();
+                    Url = newUrl;
+
+                    Trace.WriteLine($"{nameof(MaintFace)} Warning: Desired endpoint is in use. Randomized path.");
+                }
             }
 
             Task.Run(() => SendLoop());

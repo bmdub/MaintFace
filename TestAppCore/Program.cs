@@ -11,9 +11,9 @@ namespace TestApp
     {
         static void Main(string[] args)
         {
-            //MaintFace.Start("My App", "http://localhost:12121/MyApp/");
+            //MaintFace.Start("My App", "http://*:12121/MyApp/");
 
-            MaintFace.Start("My App", "http://localhost:12121/MyApp/", MaintFaceOptions.EnableButtons | MaintFaceOptions.EnableCommands | MaintFaceOptions.EnableCodeInjection | MaintFaceOptions.EnableVariableOverride, AuthenticationSchemes.Basic);
+            MaintFace.Start("My App", "http://*:12121/MyApp/", MaintFaceOptions.EnableButtons | MaintFaceOptions.EnableCommands | MaintFaceOptions.EnableCodeInjection | MaintFaceOptions.EnableVariableOverride, AuthenticationSchemes.Basic);
             MaintFace.AuthenticateUser += MaintFace_AuthenticateUser;
 
             // Wait 3 Seconds for a browser connection. If none, then open a browser window to this instance.
