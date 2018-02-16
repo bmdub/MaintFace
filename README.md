@@ -20,9 +20,9 @@ using BW.Diagnostics;
 ``` 
 Just call the static Start() method with your app name and desired URL endpoint:  
 ```CSharp
-MaintFace.Start("My App", "http://localhost:12121/MyApp/");
+MaintFace.Start("My App", "http://*:12121/MyApp/");
 ``` 
-(Note: To use an endpoint other than "localhost", you must either: Run your program with administrative privileges, or reserve the URL using netsh.) 
+(Note: To use an endpoint other than "localhost", you must either: Run your program with administrative privileges, or reserve the URL using netsh. If you use "\*", MaintFace may fall back to "localhost") 
 <br/><br/>
 
 You may also want to have a browser window open automatically, if no connections are detected after a short period of time: 
@@ -34,7 +34,7 @@ MaintFace.OpenBrowserAfter(TimeSpan.FromSeconds(3));
 It's recommended that you only enable features that you need. You can override the default MaintFaceOptions to accomplish this. For example:  
 ```CSharp
 #if DEBUG
-MaintFace.Start("My App", "http://localhost:12121/MyApp/", MaintFaceOptions.EnableButtons | MaintFaceOptions.EnableCommands);
+MaintFace.Start("My App", "http://*:12121/MyApp/", MaintFaceOptions.EnableButtons | MaintFaceOptions.EnableCommands);
 #endif
 ``` 
 This ensures that MaintFace only runs in Debug builds, and excludes features such as variable overriding and code injection. 
@@ -42,7 +42,7 @@ This ensures that MaintFace only runs in Debug builds, and excludes features suc
 
 To start MaintFace with authentication enabled, specify an authentication scheme: 
 ```CSharp
-MaintFace.Start("My App", "http://localhost:12121/MyApp/", MaintFaceOptions.All, System.Net.AuthenticationSchemes.Basic);
+MaintFace.Start("My App", "http://*:12121/MyApp/", MaintFaceOptions.All, System.Net.AuthenticationSchemes.Basic);
 MaintFace.AuthenticateUser += MaintFace_AuthenticateUser; 
 ```
 Handling the AuthenticateUser event is mandatory for Basic Authentication. Here is what a AuthenticateUser event handler might look like: 
