@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
-    <Version>2.0.2-beta</Version>
+    <Version>2.1.0-beta</Version>
     <Authors>Brian Williams</Authors>
     <Company />
     <Product />
@@ -12,6 +12,7 @@
     <PackageTags>Maintenance Interface</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>A simple and lightweight maintenance interface for .NET applications. You can use MaintFace to view information about and interact with your application.</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>

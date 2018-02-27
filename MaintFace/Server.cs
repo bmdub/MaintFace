@@ -394,7 +394,7 @@ namespace BW.Diagnostics
                                 }
 #pragma warning restore 4014
                             }
-                            if (!string.IsNullOrEmpty(message.Command))
+                            if (message.Command != null)
                             {
                                 if (!Options.HasFlag(MaintFaceOptions.EnableCommands))
                                 {
@@ -402,9 +402,9 @@ namespace BW.Diagnostics
                                 }
                                 else
                                 {
+#pragma warning disable 4014
                                     if (CommandReceived != null)
                                     {
-#pragma warning disable 4014
                                         _consoleMessageQueue.Enqueue(">" + message.Command);
                                         var args = new CommandReceivedEventArgs(message.Command);
 
@@ -424,8 +424,32 @@ namespace BW.Diagnostics
                                                 _consoleMessageQueue.Enqueue(args.Response);
                                         });
                                     }
-                                }
+                                    
+                                    if(HaveCommandHandlersByName)
+                                    {
+                                        _consoleMessageQueue.Enqueue(">" + message.Command);
+                                        string response = null;
+
+                                        Task.Run(() =>
+                                        {
+                                            try
+                                            {
+                                                response = HandleCommandByName(message.Command);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Trace.WriteLine(nameof(MaintFace) + " Error: " + ex.Message);
+                                                Trace.WriteLine("Available Commands:");
+                                                Trace.WriteLine(GetCommandList());
+                                            }
+                                        }).ContinueWith((task) =>
+                                        {
+                                            if (response != null)
+                                                _consoleMessageQueue.Enqueue(response);
+                                        });
+                                    }
 #pragma warning restore 4014
+                                }
                             }
                             if (message.DumpTracePointName != null)
                             {

@@ -517,7 +517,7 @@ webSocket.Message = (serverMessage) => {
 			"<button style=\"margin:5px;color: white;background-color: #344455;border: none;padding: 5px 10px;cursor: pointer;\" onclick=\"SubmitForm(this.innerHTML);\">", serverMessage.CustomButtons[i], "</button>");
 	}
 	for (var i = 0; i < serverMessage.ConsoleMessages.length; i++) {
-		out_prompt.innerHTML = out_prompt.innerHTML.concat(serverMessage.ConsoleMessages[i], "<br/>");
+		out_prompt.innerHTML = out_prompt.innerHTML.concat(serverMessage.ConsoleMessages[i].replace("\r\n", "<br/>"), "<br/>");
 	}
 	out_prompt.scrollTop = out_prompt.scrollHeight;
 

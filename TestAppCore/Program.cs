@@ -18,7 +18,7 @@ namespace TestApp
 
             // Wait 3 Seconds for a browser connection. If none, then open a browser window to this instance.
             MaintFace.OpenBrowserAfter(TimeSpan.FromSeconds(3));
-                        
+
             MaintFace.Stats["My Stat"].Update("good");
 
             int myValue = 7;
@@ -34,6 +34,8 @@ namespace TestApp
             Debug.Write("Debug message test.");
             MaintFace.WriteConsoleMessage("A console message");
             MaintFace.CommandReceived += MaintFace_CommandReceived;
+            MaintFace.CommandReceivedByName("Echo", (str) => "You entered: " + str);
+            MaintFace.CommandReceivedByName("Add", (num1, num2) => (int.Parse(num1) + int.Parse(num2)).ToString());
 
             int someValue = 5;
             Random rand = new Random();
