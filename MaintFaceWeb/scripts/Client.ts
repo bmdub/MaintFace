@@ -21,7 +21,7 @@ var instancesPopup: CustomPopup = null;
 var statCollection: StatCollection = new StatCollection();
 var hoveredStatNames: Array<string> = [];
 
-var wsUrl = window.location.href.toLowerCase();
+var wsUrl = window.location.href;
 wsUrl = wsUrl.replace("https://", "wss://");
 wsUrl = wsUrl.replace("http://", "ws://");
 var webSocket: AsyncWebSocket = new AsyncWebSocket(wsUrl, false);
