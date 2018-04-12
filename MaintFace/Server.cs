@@ -102,33 +102,17 @@ namespace BW.Diagnostics
             }
             catch (HttpListenerException)
             {
-                if (url.Contains("*"))
-                {
-                    // The endpoint may contain a wildcard for the domain, but we may not be 
-                    // running with the right permissions.  Fall back to localhost.
-                    var newUrl = url.Replace("*", "localhost");
+                // The endpoint may contain a wildcard for the domain, but we may not be 
+                // running with the right permissions.  Fall back to localhost.
+                var newUrl = url.Replace("*", "localhost");
 
-                    listener = new HttpListener();
-                    listener.AuthenticationSchemes = authSchemes;
-                    listener.Prefixes.Add(newUrl);
-                    listener.Start();
-                    Url = newUrl;
+                listener = new HttpListener();
+                listener.AuthenticationSchemes = authSchemes;
+                listener.Prefixes.Add(newUrl);
+                listener.Start();
+                Url = newUrl;
 
-                    Trace.WriteLine($"{nameof(MaintFace)} Warning: Insufficient permission to use endpoint with wildcard \"*\". Using \"localhost\" instead.");
-                }
-                else
-                {
-                    // The endpoint may be taken by another instance; randomize the path
-                    var newUrl = url.TrimEnd('/') + Guid.NewGuid().ToString() + "/";
-
-                    listener = new HttpListener();
-                    listener.AuthenticationSchemes = authSchemes;
-                    listener.Prefixes.Add(newUrl);
-                    listener.Start();
-                    Url = newUrl;
-
-                    Trace.WriteLine($"{nameof(MaintFace)} Warning: Desired endpoint is in use. Randomized path.");
-                }
+                Trace.WriteLine($"{nameof(MaintFace)} Warning: Insufficient permission to use endpoint with wildcard \"*\". Using \"localhost\" instead.");
             }
 
             Task.Run(() => SendLoop());
@@ -424,8 +408,8 @@ namespace BW.Diagnostics
                                                 _consoleMessageQueue.Enqueue(args.Response);
                                         });
                                     }
-                                    
-                                    if(HaveCommandHandlersByName)
+
+                                    if (HaveCommandHandlersByName)
                                     {
                                         _consoleMessageQueue.Enqueue(">" + message.Command);
                                         string response = null;
