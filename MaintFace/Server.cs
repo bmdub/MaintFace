@@ -27,6 +27,7 @@ namespace BW.Diagnostics
         private static string _clientJS, _clientHTML;
         private static byte[] _clientHtmlRaw;
         private static ConcurrentDictionary<WebSocket, WebSocketInfo> _sockets = new ConcurrentDictionary<WebSocket, WebSocketInfo>();
+        private static HttpListener _listener;
 
         private class WebSocketInfo
         {
@@ -90,14 +91,13 @@ namespace BW.Diagnostics
             //prefix = "http://*:12121/MaintFace/";
             //prefix = "http://localhost:12121/MaintFace/";
             //s.Prefixes.Add(prefix);
-            HttpListener listener;
 
             try
             {
-                listener = new HttpListener();
-                listener.AuthenticationSchemes = authSchemes;
-                listener.Prefixes.Add(url);
-                listener.Start();
+                _listener = new HttpListener();
+                _listener.AuthenticationSchemes = authSchemes;
+                _listener.Prefixes.Add(url);
+                _listener.Start();
                 Url = url;
             }
             catch (HttpListenerException)
@@ -106,10 +106,10 @@ namespace BW.Diagnostics
                 // running with the right permissions.  Fall back to localhost.
                 var newUrl = url.Replace("*", "localhost");
 
-                listener = new HttpListener();
-                listener.AuthenticationSchemes = authSchemes;
-                listener.Prefixes.Add(newUrl);
-                listener.Start();
+                _listener = new HttpListener();
+                _listener.AuthenticationSchemes = authSchemes;
+                _listener.Prefixes.Add(newUrl);
+                _listener.Start();
                 Url = newUrl;
 
                 Trace.WriteLine($"{nameof(MaintFace)} Warning: Insufficient permission to use endpoint with wildcard \"*\". Using \"localhost\" instead.");
@@ -117,18 +117,45 @@ namespace BW.Diagnostics
 
             Task.Run(() => SendLoop());
 
-            Task.Run(() => RunServer(listener));
+            Task.Run(() => RunServer());
 
             Trace.WriteLine($"{nameof(MaintFace)} (v{typeof(MaintFace).Assembly.GetName().Version}) started at: {Url}");
         }
 
-        private static async void RunServer(HttpListener listener)
+        private static async Task RecreateListener()
+        {
+            // Precondition: The http listener has been successfully created before,
+            // and we are trying to recreate it after/during networking issues.
+
+            for (; ; )
+            {
+                try
+                {
+                    _listener.Close();
+
+                    _listener = new HttpListener();
+                    _listener.AuthenticationSchemes = AuthSchemes;
+                    _listener.Prefixes.Add(Url);
+                    _listener.Start();
+
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(nameof(MaintFace) + " Error: " + nameof(RecreateListener) + ": " + ex.Message);
+
+                    await Task.Delay(5000);
+                }
+            }
+        }
+
+        private static async void RunServer()
         {
             for (; ; )
             {
                 try
                 {
-                    var context = await listener.GetContextAsync();
+                    var context = await _listener.GetContextAsync();
 
                     if (context.Request.QueryString["ping"] == "1")
                     {
@@ -183,7 +210,6 @@ namespace BW.Diagnostics
 
         private static string GetTextResource(Assembly executingAssembly, string resourceName)
         {
-            //var asdf = executingAssembly.GetManifestResourceNames();
             Stream stream = executingAssembly.GetManifestResourceStream(resourceName);
 
             using (StreamReader reader = new StreamReader(stream))
@@ -202,6 +228,10 @@ namespace BW.Diagnostics
             }
             catch (Exception ex)
             {
+                // If the listener is in a bad state, try recreating it.
+                if (ex.Message.Contains("The semaphore timeout period has expired"))
+                    await RecreateListener();
+
                 Trace.WriteLine(nameof(MaintFace) + " Error: " + nameof(HandleInitialRequest) + ": " + ex.Message);
             }
         }
