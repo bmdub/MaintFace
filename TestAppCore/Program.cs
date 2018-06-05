@@ -69,17 +69,15 @@ namespace TestApp
         private static void MaintFace_CommandReceived(object sender, CommandReceivedEventArgs e)
         {
             Console.WriteLine("Command: " + e.Command);
-
-            // To Do: Process the command.
-
+            MaintFace.WriteConsoleMessage("Command: " + e.Command);
+            
             e.Response = "ok";
         }
 
         private static void My_Button_Pressed(object sender, ButtonPressedEventArgs e)
         {
             Console.WriteLine("Button pressed: " + e.ButtonName);
-
-            // To Do: Handle the button press.
+            MaintFace.WriteConsoleMessage("Button pressed: " + e.ButtonName);
         }
 
         private static void MaintFace_AuthenticateUser(object sender, AuthEventArgs e)
