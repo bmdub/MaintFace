@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
-  </ItemGroup>
-
-  <ItemGroup>
     <TypeScriptCompile Include="scripts\AsyncWebSocket.ts" />
     <TypeScriptCompile Include="scripts\Client.ts" />
     <TypeScriptCompile Include="scripts\Common.ts" />
